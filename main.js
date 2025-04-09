@@ -22,6 +22,25 @@ getPostTitle(2)
   .then((obj) => console.log(obj))
   .catch((error) => console.error(error));
 
+function getPost(id) {
+  const promessa = new Promise((resolve, reject) => {
+    fetch(`https://dummyjson.com/posts/${id}`)
+      .then((response) => response.json())
+      .then((post) => {
+        fetch(`https://dummyjson.com/users/${post.userId}`)
+          .then((response) => response.json())
+          .then((author) => resolve({ ...post, author }))
+          .catch(reject);
+      })
+      .catch(reject);
+  });
+  return promessa;
+}
+
+getPost(1)
+  .then((post) => console.log(post))
+  .catch((error) => console.error(error));
+
 //Snack 2
 //Crea la funzione lanciaDado() che restituisce una Promise che, dopo 3 secondi, genera un numero casuale tra 1 e 6.
 //Tuttavia, nel 20% dei casi, il dado si "incastra" e la Promise va in reject.
@@ -43,5 +62,36 @@ function lanciaDado() {
 }
 
 lanciaDado()
+  .then((risultato) => console.log("Il numero è:", risultato))
+  .catch((error) => console.error(error));
+
+function crealanciaDado() {
+  let primoLancio = null;
+
+  return function () {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if (Math.random() < 0.2) {
+          primoLancio = null;
+          reject("il dado si è incastrato");
+        } else {
+          const risultato = Math.floor(Math.random() * 6) + 1;
+          if (risultato === primoLancio) {
+            console.log("incredibile");
+          }
+          primoLancio = risultato;
+          resolve(risultato);
+        }
+      }, 3000);
+    });
+  };
+}
+
+const lanciaDadoConMemoria = crealanciaDado();
+
+lanciaDadoConMemoria()
+  .then((risultato) => console.log("Il numero è:", risultato))
+  .catch((error) => console.error(error));
+lanciaDadoConMemoria()
   .then((risultato) => console.log("Il numero è:", risultato))
   .catch((error) => console.error(error));
